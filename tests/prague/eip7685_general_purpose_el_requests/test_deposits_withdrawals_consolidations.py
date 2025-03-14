@@ -5,7 +5,7 @@ abstract: Tests [EIP-7685: General purpose execution layer requests](https://eip
 """  # noqa: E501
 
 from itertools import permutations
-from typing import Any, Dict, Generator, List, Tuple
+from typing import Dict, Generator, List, Tuple
 
 import pytest
 
@@ -26,6 +26,7 @@ from ethereum_test_tools import (
     Transaction,
 )
 from ethereum_test_tools import Opcodes as Op
+from ethereum_test_tools.utility.pytest import ParameterSet
 
 from ..eip6110_deposits.helpers import DepositContract, DepositRequest, DepositTransaction
 from ..eip6110_deposits.spec import Spec as Spec_EIP6110
@@ -99,7 +100,13 @@ def single_consolidation_from_contract(i: int) -> ConsolidationRequestContract: 
     return ConsolidationRequestContract(requests=[single_consolidation(i)])
 
 
-def get_permutations(n: int = 3) -> Generator[Any, None, None]:
+def get_permutations(
+    n: int = 3,
+) -> Generator[
+    ParameterSet,
+    None,
+    None,
+]:
     """Return possible permutations of the requests from an EOA."""
     requests = [
         (
@@ -119,7 +126,7 @@ def get_permutations(n: int = 3) -> Generator[Any, None, None]:
         yield pytest.param([p[1] for p in perm], id="+".join([p[0] for p in perm]))
 
 
-def get_eoa_permutations(n: int = 3) -> Generator[Any, None, None]:
+def get_eoa_permutations(n: int = 3) -> Generator[ParameterSet, None, None]:
     """Return possible permutations of the requests from an EOA."""
     requests = [
         (
@@ -139,7 +146,7 @@ def get_eoa_permutations(n: int = 3) -> Generator[Any, None, None]:
         yield pytest.param([p[1] for p in perm], id="+".join([p[0] for p in perm]))
 
 
-def get_contract_permutations(n: int = 3) -> Generator[Any, None, None]:
+def get_contract_permutations(n: int = 3) -> Generator[ParameterSet, None, None]:
     """Return possible permutations of the requests from a contract."""
     requests = [
         (
@@ -171,14 +178,6 @@ def get_contract_permutations(n: int = 3) -> Generator[Any, None, None]:
                 single_deposit_from_contract(1),
             ],
             id="deposit_from_eoa+withdrawal_from_eoa+deposit_from_contract",
-        ),
-        pytest.param(
-            [
-                single_withdrawal_from_eoa(0),
-                single_deposit_from_eoa(0),
-                single_withdrawal_from_contract(1),
-            ],
-            id="withdrawal_from_eoa+deposit_from_eoa+withdrawal_from_contract",
         ),
         pytest.param(
             [
@@ -215,9 +214,100 @@ def get_contract_permutations(n: int = 3) -> Generator[Any, None, None]:
             id="withdrawal_from_eoa+consolidation_from_eoa+withdrawal_from_contract",
         ),
         pytest.param(
+            [
+                single_withdrawal_from_eoa(0),
+                single_deposit_from_eoa(0),
+                single_withdrawal_from_contract(1),
+            ],
+            id="withdrawal_from_eoa+deposit_from_eoa+withdrawal_from_contract",
+        ),
+        pytest.param(
             [],
             id="empty_requests",
         ),
+        ###################### contract: consolidation + withdrawal
+        pytest.param(
+            [
+                single_withdrawal_from_eoa(0),
+                single_consolidation_from_contract(1),
+                single_withdrawal_from_contract(1),
+            ],
+            id="withdrawal_from_eoa+consolidation_from_contract+withdrawal_from_contract",
+        ),
+        pytest.param(
+            [
+                single_deposit_from_eoa(0),
+                single_consolidation_from_contract(1),
+                single_withdrawal_from_contract(1),
+            ],
+            id="deposit_from_eoa+consolidation_from_contract+withdrawal_from_contract",
+        ),
+        pytest.param(
+            [
+                single_consolidation_from_eoa(0),
+                single_consolidation_from_contract(1),
+                single_withdrawal_from_contract(1),
+            ],
+            id="consolidation_from_eoa+consolidation_from_contract+withdrawal_from_contract",
+        ),
+        ###################### contract: consolidation + deposit
+        pytest.param(  # TODO: why do i have to put 0 for contract deposit here?
+            [
+                single_withdrawal_from_eoa(0),
+                single_consolidation_from_contract(1),
+                single_deposit_from_contract(0),
+            ],
+            id="withdrawal_from_eoa+consolidation_from_contract+deposit_from_contract",
+        ),
+        pytest.param(
+            [
+                single_deposit_from_eoa(0),
+                single_consolidation_from_contract(1),
+                single_deposit_from_contract(1),
+            ],
+            id="deposit_from_eoa+consolidation_from_contract+deposit_from_contract",
+        ),
+        pytest.param(  # TODO: why do i have to put 0 for contract deposit here?
+            [
+                single_consolidation_from_eoa(0),
+                single_consolidation_from_contract(1),
+                single_deposit_from_contract(0),
+            ],
+            id="consolidation_from_eoa+consolidation_from_contract+deposit_from_contract",
+        ),
+        ###################### contract: withdrawal + deposit
+        pytest.param(  # TODO: why do i have to put 0 for contract deposit here?
+            [
+                single_withdrawal_from_eoa(0),
+                single_withdrawal_from_contract(1),
+                single_deposit_from_contract(0),
+            ],
+            id="withdrawal_from_eoa+withdrawal_from_contract+deposit_from_contract",
+        ),
+        pytest.param(
+            [
+                single_deposit_from_eoa(0),
+                single_withdrawal_from_contract(1),
+                single_deposit_from_contract(1),
+            ],
+            id="deposit_from_eoa+withdrawal_from_contract+deposit_from_contract",
+        ),
+        pytest.param(  # TODO: why do i have to put 0 for contract deposit here?
+            [
+                single_consolidation_from_eoa(0),
+                single_withdrawal_from_contract(1),
+                single_deposit_from_contract(0),
+            ],
+            id="consolidation_from_eoa+withdrawal_from_contract+deposit_from_contract",
+        ),  # TODO: how to spot duplicates like the following? other than noticing fill number goes up by 1 but consume number doesn't increase  # noqa: E501
+        # pytest.param(  # TODO: why do i have to put 0 for contract deposit here?
+        #    [
+        #        single_consolidation_from_eoa(0),
+        #        single_withdrawal_from_contract(1),
+        #        single_deposit_from_contract(0),
+        #    ],
+        #    id="consolidation_from_eoa+withdrawal_from_contract+deposit_from_contract",
+        # ),
     ],
 )
 def test_valid_deposit_withdrawal_consolidation_requests(
@@ -324,7 +414,7 @@ def test_valid_deposit_withdrawal_consolidation_request_from_same_tx(
     )
 
 
-def invalid_requests_block_combinations(fork: Fork) -> List[Any]:
+def invalid_requests_block_combinations(fork: Fork) -> List[ParameterSet]:
     """
     Return a list of invalid request combinations for the given fork.
 
