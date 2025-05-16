@@ -99,7 +99,7 @@ def eest_verify_cell_kzg_proof_batch(commitment: bytes, cell_indices: list, cell
 
     return is_valid
 
-# our equivalent of ckzgk test_recover_cells_and_kzg_proofs
+# our equivalent of ckzg test_recover_cells_and_kzg_proofs
 def eest_delete_cells_then_recover_them(cells: list[int], proofs: list[int], deletion_indices: list[int]):  # noqa: E501
     """
     Simulate the cell recovery process in user-specified scenario.
@@ -109,16 +109,6 @@ def eest_delete_cells_then_recover_them(cells: list[int], proofs: list[int], del
     Theoretical Usage: You pass a cell list with to 128 elements to this function along with a list of deletion indices.
     These cells will be deleted and then the ckzg recovery mechanism is used to repair the missing cells.
     If no assertion is triggered the reconstruction was successful.
-
-    Practical Usage Example:
-        my_byte = "42"
-        blob = generate_blob_from_hex_byte(my_byte)
-        if blob is None:
-            print("Something went wrong. Aborting..")
-            exit(1)
-        cells, proofs = eest_compute_cells_and_kzg_proofs(blob)
-        deletion_indices = [0, 12, 25, 42, 127]
-        eest_delete_cells_then_recover_them(cells, proofs, deletion_indices)
     """  # noqa: E501
     # sanity checks
     assert len(cells) == 128, f"You are supposed to pass a full cell list with 128 elements to this function, but got list of length {len(cells)}"  # noqa: E501
@@ -149,8 +139,7 @@ def eest_delete_cells_then_recover_them(cells: list[int], proofs: list[int], del
     # print("Successful reconstruction")
 
 
-# ---------------- EXAMPLE USAGE -----------------------
-
+""" Example Usage
 my_byte = "42" # 0x73 (115) or lower works, 0x74 (116) or higher fails
 # generate blob
 blob: bytes = generate_blob_from_hex_byte(my_byte)
@@ -167,3 +156,4 @@ my_cell_indices: list[int] = list(range(128))
 #commitment = bytes((lambda b: (b.__setitem__(8, 0x3a), b)[1])(bytearray(commitment)))
 is_valid = eest_verify_cell_kzg_proof_batch(commitment, my_cell_indices, cells, proofs)
 print("Success")
+"""
