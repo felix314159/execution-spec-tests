@@ -125,7 +125,7 @@ createLargeResult:
 
 
     gasLimit:
-    - 6_000_000
+    - 80000000
     gasPrice: 10
     nonce: 1
     to: cccccccccccccccccccccccccccccccccccccccc
@@ -276,7 +276,7 @@ createLargeResult:
             # Address (REVERT, so nothing)
             0: 0
             # Remaining gas
-            1: 0x59e2ab
+            1: 0x04b16491
             # Hash when there is no contract
             2: 0
 
@@ -293,7 +293,7 @@ createLargeResult:
             # Address (REVERT, so nothing)
             0: 0
             # Remaining gas
-            1: 0x59e2ac
+            1: 0x04b16492
             # Hash when there is no contract
             2: 0
 
@@ -343,7 +343,7 @@ createLargeResult:
             # Address (REVERT, so nothing)
             0: 0
             # Remaining gas
-            1: 0x59e2b7
+            1: 0x04b1649d
             # Hash when there is no contract
             2: 0
 
@@ -360,7 +360,7 @@ createLargeResult:
             # Address (REVERT, so nothing)
             0: 0
             # Remaining gas
-            1: 0x59e2b8
+            1: 0x04b1649e
             # Hash when there is no contract
             2: 0
 
