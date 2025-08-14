@@ -1163,6 +1163,7 @@ def pytest_collection_modifyitems(
         items.pop(i)
 
 
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
     """
     Perform session finish tasks.
@@ -1180,23 +1181,25 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
         pre_alloc_groups_folder = fixture_output.pre_alloc_groups_folder_path
         pre_alloc_groups_folder.mkdir(parents=True, exist_ok=True)
         session.config.pre_alloc_groups.to_folder(pre_alloc_groups_folder)
-        return
 
     if xdist.is_xdist_worker(session):
+        yield
         return
 
     if fixture_output.is_stdout or is_help_or_collectonly_mode(session.config):
+        yield
         return
 
     # Remove any lock files that may have been created.
     for file in fixture_output.directory.rglob("*.lock"):
         file.unlink()
 
-    # Generate index file for all produced fixtures.
+    yield  # ensure that the following runs after pytest-html's pytest_sessionfinish hook
+
+    # Generate index file for all produced fixtures, respectively remove output dir.
     if session.config.getoption("generate_index") and not session.config.getoption(
         "generate_pre_alloc_groups"
     ):
-        # only create fixtures dir if at least one test was filled
         amount_of_collected_tests = getattr(session, "testscollected", 0)
         if amount_of_collected_tests > 0:
             generate_fixtures_index(
@@ -1206,17 +1209,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
                 disable_infer_format=False,
             )
         else:
-            # nuke the fixtures dir, but only if:
-            #      * html output is disabled
-            # and
-            #      * no tests were filled
-            html_output_is_enabled = getattr(session.config.option, "htmlpath", None)
-            if not html_output_is_enabled:
-                # determine chosen fixtures output folder
-                fixture_output_obj: FixtureOutput = FixtureOutput.from_config(session.config)
-                fixture_output_folder: Path = fixture_output_obj.output_path
-                # and delete it
-                shutil.rmtree(fixture_output_folder)
+            shutil.rmtree(fixture_output.output_path)
 
     # Create tarball of the output directory if the output is a tarball.
     fixture_output.create_tarball()
