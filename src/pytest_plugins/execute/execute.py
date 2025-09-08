@@ -373,11 +373,21 @@ for cls in BaseTest.spec_types.values():
     globals()[cls.pytest_parameter_name()] = base_test_parametrizer(cls)
 
 
+def dump_metafunc_config(metafunc):
+    print(
+        f"\nEngine RPC supported: {metafunc.config.engine_rpc_supported}\n"
+        f"Hive Execution Clients: {metafunc.config.hive_execution_clients}\n"
+        f"Fixture Names: {metafunc.fixturenames}\n"
+        f"Test Types: {BaseTest.spec_types.values()}\n"
+    )
+
+
 def pytest_generate_tests(metafunc: pytest.Metafunc):
     """
     Pytest hook used to dynamically generate test cases for each fixture format a given
     test spec supports.
     """
+    # dump_metafunc_config(metafunc=metafunc)
     engine_rpc_supported = metafunc.config.engine_rpc_supported  # type: ignore
     for test_type in BaseTest.spec_types.values():
         if test_type.pytest_parameter_name() in metafunc.fixturenames:
@@ -393,6 +403,16 @@ def pytest_generate_tests(metafunc: pytest.Metafunc):
                 scope="function",
                 indirect=True,
             )
+            # print(f"I have parameterized: {test_type.pytest_parameter_name()}")
+
+            # Run the test for each client that was passed to hive
+            if "client_type" in metafunc.fixturenames:
+                metafunc.parametrize(
+                    "client_type",
+                    metafunc.config.hive_execution_clients,  # type: ignore
+                    ids=[client.name for client in metafunc.config.hive_execution_clients],  # type: ignore
+                    scope="session",  # you have to use session, not function
+                )
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
