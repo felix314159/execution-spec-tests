@@ -169,6 +169,44 @@ addopts = [
     "--ignore=src/pytest_plugins/consume/direct/",
     "--ignore=src/pytest_plugins/consume/simulators/",
 ]
+markers = [
+    "parametrize", # pytest built-in
+    "skip", # pytest built-in
+
+    # those 5 have been declared in .ini files
+    "eip_version_check: tests for EIP version compatibility",
+    "ported_from: references which static test this was ported from",
+    "pre_alloc_group: Control shared pre-allocation grouping (use \"separate\" for isolated group or custom string for named groups)",
+    "pre_alloc_modify: tests that modify pre-allocated resources",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+
+    # all below are used but never declared in .ini files (description taken from docs)
+    "benchmark", # exists but not yet used in ./tests (main branch), also comes with pytest-benchmark plugin
+    "blockchain_test_engine_only",
+    "eip_checklist",
+    "eof_test_only",
+    "exception_test",
+    "execute",
+    "parametrize_by_fork:                   Marker to dynamically parameterize depending on argnames and fn passed",          
+    "state_test_only",
+    "valid_at:                              Marker to specify each fork individually for which the test is valid.", # exists but not yet used in ./tests (main branch)
+    "valid_at_transition_to:                Marker to specify that a test is only meant to be filled at the transition to the specified fork.",
+    "valid_for_bpo_forks",
+    "valid_from:                            Marker used to specify the fork from which the test is valid. The test will not be filled for forks before the specified fork.",
+    "valid_until:                           Marker to specify the fork until which the test is valid. The test will not be filled for forks after the specified fork.",
+    "verify_sync",
+    "with_all_call_opcodes:                 This marker is used to automatically parameterize a test with all EVM call opcodes that are valid for the fork being tested.",
+    "with_all_contract_creating_tx_types:   This marker is used to automatically parameterize a test with all contract creating transaction types that are valid for the fork being tested.",
+    "with_all_create_opcodes:               This marker is used to automatically parameterize a test with all EVM create opcodes that are valid for the fork being tested.",
+    "with_all_evm_code_types:               This marker is used to automatically parameterize a test with all EVM code types that are valid for the fork being tested.",
+    "with_all_precompiles:                  This marker is used to automatically parameterize a test with all precompiles that are valid for the fork being tested.",
+    "with_all_system_contracts:             This marker is used to automatically parameterize a test with all system contracts that are valid for the fork being tested.",
+    "with_all_tx_types:                     This marker is used to automatically parameterize a test with all transaction types that are valid for the fork being tested.",
+    "with_all_typed_transactions:           This marker is used to automatically parameterize a test with all typed transactions, including type=0 (legacy transaction), that are valid for the fork being tested",
+
+    # TODO:
+    # docs mention 'fill' but it is never used as marker
+]
 
 [tool.uv]
 required-version = ">=0.7.0"
